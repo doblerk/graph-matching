@@ -5,7 +5,8 @@ This repository provides an implementation of a graph matching framework based o
 ## Installation
 
 #### Prerequisites
-- TDB
+- CMake >= v.3.10
+- C++ Compiler >= C++17
 
 #### Install
 ```bash
