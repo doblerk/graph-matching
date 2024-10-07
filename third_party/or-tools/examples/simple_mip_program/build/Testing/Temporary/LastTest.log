@@ -1,0 +1,30 @@
+Start testing: Jul 05 11:08 CEST
+----------------------------------------------------------
+1/1 Testing: test_simple_mip_program
+1/1 Test: test_simple_mip_program
+Command: "/home/dobleraemon/Downloads/or-tools/examples/simple_mip_program/build/bin/simple_mip_program"
+Directory: /home/dobleraemon/Downloads/or-tools/examples/simple_mip_program/build
+"test_simple_mip_program" start time: Jul 05 11:08 CEST
+Output:
+----------------------------------------------------------
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1720170482.985231    7341 simple_mip_program.cc:39] Number of variables = 2
+I0000 00:00:1720170482.985292    7341 simple_mip_program.cc:53] Number of constraints = 2
+I0000 00:00:1720170482.985748    7341 simple_mip_program.cc:73] Solution:
+I0000 00:00:1720170482.985755    7341 simple_mip_program.cc:74] Objective value = 23
+I0000 00:00:1720170482.985765    7341 simple_mip_program.cc:75] x = 3
+I0000 00:00:1720170482.985768    7341 simple_mip_program.cc:76] y = 2
+I0000 00:00:1720170482.985769    7341 simple_mip_program.cc:80] 
+Advanced usage:
+I0000 00:00:1720170482.985770    7341 simple_mip_program.cc:81] Problem solved in 1 milliseconds
+I0000 00:00:1720170482.985772    7341 simple_mip_program.cc:82] Problem solved in 0 iterations
+I0000 00:00:1720170482.985773    7341 simple_mip_program.cc:83] Problem solved in 1 branch-and-bound nodes
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"test_simple_mip_program" end time: Jul 05 11:08 CEST
+"test_simple_mip_program" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Jul 05 11:08 CEST

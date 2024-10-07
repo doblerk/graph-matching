@@ -1,0 +1,30 @@
+Start testing: Jul 05 11:07 CEST
+----------------------------------------------------------
+1/1 Testing: test_basic_example
+1/1 Test: test_basic_example
+Command: "/home/dobleraemon/Downloads/or-tools/examples/basic_example/build/bin/basic_example"
+Directory: /home/dobleraemon/Downloads/or-tools/examples/basic_example/build
+"test_basic_example" start time: Jul 05 11:07 CEST
+Output:
+----------------------------------------------------------
+I0705 11:07:54.666763    6711 basic_example.cc:30] Google OR-Tools version : 9.10.4067
+I0705 11:07:54.667725    6711 basic_example.cc:46] Number of variables = 2
+I0705 11:07:54.667754    6711 basic_example.cc:56] Number of constraints = 1
+I0705 11:07:54.667758    6711 basic_example.cc:68] Solving with Glop solver v9.10.4067
+I0705 11:07:54.667979    6711 basic_example.cc:74] Status: MPSOLVER_OPTIMAL
+I0705 11:07:54.667990    6711 basic_example.cc:85] Solution:
+I0705 11:07:54.667991    6711 basic_example.cc:86] Objective value = 4
+I0705 11:07:54.668004    6711 basic_example.cc:87] x = 1
+I0705 11:07:54.668007    6711 basic_example.cc:88] y = 1
+I0705 11:07:54.668008    6711 basic_example.cc:92] Advanced usage:
+I0705 11:07:54.668009    6711 basic_example.cc:93] Problem solved in 0 milliseconds
+I0705 11:07:54.668011    6711 basic_example.cc:94] Problem solved in 0 iterations
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"test_basic_example" end time: Jul 05 11:07 CEST
+"test_basic_example" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Jul 05 11:07 CEST

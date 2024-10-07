@@ -1,0 +1,45 @@
+Start testing: Jul 05 11:07 CEST
+----------------------------------------------------------
+1/1 Testing: test_integer_programming
+1/1 Test: test_integer_programming
+Command: "/home/dobleraemon/Downloads/or-tools/examples/integer_programming/build/bin/integer_programming"
+Directory: /home/dobleraemon/Downloads/or-tools/examples/integer_programming/build
+"test_integer_programming" start time: Jul 05 11:07 CEST
+Output:
+----------------------------------------------------------
+I0705 11:07:57.306577    6885 integer_programming.cc:27] ---- Integer programming example with CBC ----
+I0705 11:07:57.307444    6885 integer_programming.cc:63] Number of variables = 2
+I0705 11:07:57.307459    6885 integer_programming.cc:64] Number of constraints = 2
+I0705 11:07:57.309238    6885 integer_programming.cc:71] Solution:
+I0705 11:07:57.309272    6885 integer_programming.cc:72] x = 3
+I0705 11:07:57.309285    6885 integer_programming.cc:73] y = 2
+I0705 11:07:57.309287    6885 integer_programming.cc:74] Optimal objective value = 23
+I0705 11:07:57.309290    6885 integer_programming.cc:75] 
+I0705 11:07:57.309291    6885 integer_programming.cc:76] Advanced usage:
+I0705 11:07:57.309292    6885 integer_programming.cc:77] Problem solved in 2 milliseconds
+I0705 11:07:57.309294    6885 integer_programming.cc:78] Problem solved in 1 iterations
+I0705 11:07:57.309295    6885 integer_programming.cc:79] Problem solved in 0 branch-and-bound nodes
+I0705 11:07:57.309338    6885 integer_programming.cc:27] ---- Integer programming example with SAT ----
+I0705 11:07:57.309358    6885 integer_programming.cc:63] Number of variables = 2
+I0705 11:07:57.309360    6885 integer_programming.cc:64] Number of constraints = 2
+I0705 11:07:57.315214    6885 integer_programming.cc:71] Solution:
+I0705 11:07:57.315229    6885 integer_programming.cc:72] x = 3
+I0705 11:07:57.315237    6885 integer_programming.cc:73] y = 2
+I0705 11:07:57.315239    6885 integer_programming.cc:74] Optimal objective value = 23
+I0705 11:07:57.315242    6885 integer_programming.cc:75] 
+I0705 11:07:57.315243    6885 integer_programming.cc:76] Advanced usage:
+I0705 11:07:57.315244    6885 integer_programming.cc:77] Problem solved in 5 milliseconds
+I0705 11:07:57.315246    6885 integer_programming.cc:78] Problem solved in 0 iterations
+I0705 11:07:57.315248    6885 integer_programming.cc:79] Problem solved in 0 branch-and-bound nodes
+I0705 11:07:57.315252    6885 integer_programming.cc:27] ---- Integer programming example with SCIP ----
+I0705 11:07:57.316790    6885 integer_programming.cc:63] Number of variables = 2
+I0705 11:07:57.316801    6885 integer_programming.cc:64] Number of constraints = 2
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"test_integer_programming" end time: Jul 05 11:07 CEST
+"test_integer_programming" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Jul 05 11:07 CEST

@@ -1,0 +1,18 @@
+Start testing: Jul 05 11:08 CEST
+----------------------------------------------------------
+1/1 Testing: test_tsp
+1/1 Test: test_tsp
+Command: "/home/dobleraemon/Downloads/or-tools/examples/tsp/build/bin/tsp"
+Directory: /home/dobleraemon/Downloads/or-tools/examples/tsp/build
+"test_tsp" start time: Jul 05 11:08 CEST
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"test_tsp" end time: Jul 05 11:08 CEST
+"test_tsp" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Jul 05 11:08 CEST

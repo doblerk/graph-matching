@@ -1,0 +1,8 @@
+/home/dobleraemon/Downloads/or-tools/examples/simple_knapsack_program/build/CMakeFiles/simple_knapsack_program.dir
+/home/dobleraemon/Downloads/or-tools/examples/simple_knapsack_program/build/CMakeFiles/test.dir
+/home/dobleraemon/Downloads/or-tools/examples/simple_knapsack_program/build/CMakeFiles/edit_cache.dir
+/home/dobleraemon/Downloads/or-tools/examples/simple_knapsack_program/build/CMakeFiles/rebuild_cache.dir
+/home/dobleraemon/Downloads/or-tools/examples/simple_knapsack_program/build/CMakeFiles/list_install_components.dir
+/home/dobleraemon/Downloads/or-tools/examples/simple_knapsack_program/build/CMakeFiles/install.dir
+/home/dobleraemon/Downloads/or-tools/examples/simple_knapsack_program/build/CMakeFiles/install/local.dir
+/home/dobleraemon/Downloads/or-tools/examples/simple_knapsack_program/build/CMakeFiles/install/strip.dir

@@ -1,0 +1,36 @@
+Start testing: Jul 05 11:08 CEST
+----------------------------------------------------------
+1/1 Testing: test_vrp
+1/1 Test: test_vrp
+Command: "/home/dobleraemon/Downloads/or-tools/examples/vrp/build/bin/vrp"
+Directory: /home/dobleraemon/Downloads/or-tools/examples/vrp/build
+"test_vrp" start time: Jul 05 11:08 CEST
+Output:
+----------------------------------------------------------
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1720170491.416713    7741 vrp.cc:78] Objective: 4384
+I0000 00:00:1720170491.416756    7741 vrp.cc:82] Route for Vehicle 0:
+I0000 00:00:1720170491.416760    7741 vrp.cc:92] 0 -> 0
+I0000 00:00:1720170491.416762    7741 vrp.cc:93] Distance of the route: 0m
+I0000 00:00:1720170491.416764    7741 vrp.cc:82] Route for Vehicle 1:
+I0000 00:00:1720170491.416765    7741 vrp.cc:92] 0 -> 0
+I0000 00:00:1720170491.416765    7741 vrp.cc:93] Distance of the route: 0m
+I0000 00:00:1720170491.416766    7741 vrp.cc:82] Route for Vehicle 2:
+I0000 00:00:1720170491.416767    7741 vrp.cc:92] 0 -> 0
+I0000 00:00:1720170491.416768    7741 vrp.cc:93] Distance of the route: 0m
+I0000 00:00:1720170491.416769    7741 vrp.cc:82] Route for Vehicle 3:
+I0000 00:00:1720170491.416772    7741 vrp.cc:92] 0 -> 9 -> 5 -> 8 -> 6 -> 2 -> 10 -> 16 -> 14 -> 13 -> 12 -> 11 -> 15 -> 3 -> 4 -> 1 -> 7 -> 0
+I0000 00:00:1720170491.416773    7741 vrp.cc:93] Distance of the route: 4384m
+I0000 00:00:1720170491.416774    7741 vrp.cc:96] Total distance of all routes: 4384m
+I0000 00:00:1720170491.416775    7741 vrp.cc:97] 
+I0000 00:00:1720170491.416776    7741 vrp.cc:98] Advanced usage:
+I0000 00:00:1720170491.416776    7741 vrp.cc:99] Problem solved in 2ms
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"test_vrp" end time: Jul 05 11:08 CEST
+"test_vrp" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Jul 05 11:08 CEST

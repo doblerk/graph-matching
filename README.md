@@ -1,0 +1,23 @@
+#  Graph Matching Framework
+
+This repository provides an implementation of a graph matching framework based on node embeddings.
+
+## Installation
+
+#### Prerequisites
+- TDB
+
+#### Install
+```bash
+mkdir build
+cd build
+cmake -S .. -B .
+make
+```
+
+## How to use
+
+#### Run
+```bash
+./graph-matching
+```

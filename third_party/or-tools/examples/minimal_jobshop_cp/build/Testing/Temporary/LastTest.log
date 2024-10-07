@@ -1,0 +1,46 @@
+Start testing: Jul 05 11:08 CEST
+----------------------------------------------------------
+1/1 Testing: test_minimal_jobshop_cp
+1/1 Test: test_minimal_jobshop_cp
+Command: "/home/dobleraemon/Downloads/or-tools/examples/minimal_jobshop_cp/build/bin/minimal_jobshop_cp"
+Directory: /home/dobleraemon/Downloads/or-tools/examples/minimal_jobshop_cp/build
+"test_minimal_jobshop_cp" start time: Jul 05 11:08 CEST
+Output:
+----------------------------------------------------------
+I0705 11:08:16.458554    8007 minimal_jobshop_cp.cc:41] Machines:  0 1 2
+I0705 11:08:16.458588    8007 minimal_jobshop_cp.cc:51] Jobs:
+I0705 11:08:16.458594    8007 minimal_jobshop_cp.cc:59] Job 0: [(0, 3)(1, 2)(2, 2)]
+
+I0705 11:08:16.458595    8007 minimal_jobshop_cp.cc:59] Job 1: [(0, 2)(2, 1)(1, 4)]
+
+I0705 11:08:16.458596    8007 minimal_jobshop_cp.cc:59] Job 2: [(1, 4)(2, 3)]
+
+I0705 11:08:16.458597    8007 minimal_jobshop_cp.cc:69] Horizon: 21
+I0705 11:08:16.458787    8007 search.cc:285] Start search (memory used = 11.11 MB)
+I0705 11:08:16.458875    8007 search.cc:285] Root node processed (time = 0 ms, constraints = 39, memory used = 11.11 MB)
+I0705 11:08:16.458969    8007 search.cc:285] Solution #0 (objective = 14, time = 0 ms, branches = 6, failures = 0, depth = 6, memory used = 11.11 MB)
+I0705 11:08:16.459028    8007 search.cc:285] Solution #1 (objective = 12, objective maximum = 14, time = 0 ms, branches = 8, failures = 4, depth = 4, memory used = 11.11 MB)
+I0705 11:08:16.459067    8007 search.cc:285] Solution #2 (objective = 11, objective maximum = 14, time = 0 ms, branches = 10, failures = 6, depth = 3, memory used = 11.11 MB)
+I0705 11:08:16.459086    8007 search.cc:285] Finished search tree (time = 0 ms, branches = 10, failures = 9, memory used = 11.11 MB)
+I0705 11:08:16.459098    8007 search.cc:285] End search (time = 1 ms, branches = 10, failures = 9, memory used = 11.11 MB, speed = 10000 branches/s)
+I0705 11:08:16.459103    8007 minimal_jobshop_cp.cc:159] Optimal Schedule Length: 11
+I0705 11:08:16.459106    8007 minimal_jobshop_cp.cc:160] 
+I0705 11:08:16.459107    8007 minimal_jobshop_cp.cc:162] Optimal Schedule:
+I0705 11:08:16.459110    8007 minimal_jobshop_cp.cc:171] Machine 0: Job_0_0 Job_1_0 
+I0705 11:08:16.459115    8007 minimal_jobshop_cp.cc:171] Machine 1: Job_2_0 Job_0_1 Job_1_2 
+I0705 11:08:16.459118    8007 minimal_jobshop_cp.cc:171] Machine 2: Job_1_1 Job_0_2 Job_2_1 
+I0705 11:08:16.459120    8007 minimal_jobshop_cp.cc:189] Time Intervals for Tasks: 
+I0705 11:08:16.459122    8007 minimal_jobshop_cp.cc:191] Machine 0: [( 0, 0),( 3, 3)][( 3, 3),( 5, 5)]
+I0705 11:08:16.459122    8007 minimal_jobshop_cp.cc:191] Machine 1: [( 0, 0),( 4, 4)][( 4, 4),( 6, 6)][( 6, 7),(10, 11)]
+I0705 11:08:16.459123    8007 minimal_jobshop_cp.cc:191] Machine 2: [( 5, 5),( 6, 6)][( 6, 6),( 8, 8)][( 8, 8),(11, 11)]
+I0705 11:08:16.459123    8007 minimal_jobshop_cp.cc:193] Advanced usage:
+I0705 11:08:16.459124    8007 minimal_jobshop_cp.cc:194] Time: 0ms
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"test_minimal_jobshop_cp" end time: Jul 05 11:08 CEST
+"test_minimal_jobshop_cp" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Jul 05 11:08 CEST
