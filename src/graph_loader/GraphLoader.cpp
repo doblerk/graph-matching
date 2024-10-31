@@ -66,6 +66,11 @@ std::vector<int> GraphLoader::get_adj_nodes(int u, Graph &g) {
     return adjacent_nodes;
 }
 
+int GraphLoader::get_degree(int u, Graph &g) {
+    int out_degree = boost::out_degree(u, g);
+    return out_degree;
+}
+
 int GraphLoader::has_edge(int u, int v, Graph &g) {
     int e = boost::edge(u, v, g).second;
     return e;
