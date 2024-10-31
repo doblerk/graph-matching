@@ -14,13 +14,11 @@ set(BOOST_ROOT "${PROJECT_SOURCE_DIR}/third_party/boost")
 set(BOOST_INCLUDEDIR "${PROJECT_SOURCE_DIR}/third_party/boost")
 set(BOOST_LIBRARYDIR "${PROJECT_SOURCE_DIR}/third_party/boost/stage/lib")
 
-find_library(BOOST_LIB
-	NAMES boost_graph boost_regex
-	HINTS ${BOOST_LIBRARYDIR}
-)
+find_library(BOOST_REGEX_LIB boost_regex HINTS ${BOOST_LIBRARYDIR})
+find_library(BOOST_GRAPH_LIB boost_graph HINTS ${BOOST_LIBRARYDIR})
 
-if (NOT BOOST_LIB)
-    message(FATAL_ERROR "Boost library not found in ${BOOST_LIBRARYDIR}")
+if (NOT BOOST_REGEX_LIB OR NOT BOOST_GRAPH_LIB)
+    message(FATAL_ERROR "Required Boost libraries not found in ${BOOST_LIBRARYDIR}")
 endif()
 
 # Find OR-tool libraries
@@ -45,6 +43,18 @@ if (NOT CNPY_LIB)
     message(FATAL_ERROR "CNPY library not found in ${CNPY_LIBRARYDIR}")
 endif()
 
+# Find hdf5 libraries
+set(HDF5_ROOT "${PROJECT_SOURCE_DIR}/third_party/hdf5")
+set(HDF5_INCLUDEDIR "${PROJECT_SOURCE_DIR}/third_party/hdf5/include")
+set(HDF5_LIBRARYDIR "${PROJECT_SOURCE_DIR}/third_party/hdf5/lib")
+
+find_library(HDF5_LIB hdf5 PATHS ${HDF5_LIBRARYDIR} NO_DEFAULT_PATH)
+find_library(HDF5_CPP_LIB hdf5_cpp PATHS ${HDF5_LIBRARYDIR} NO_DEFAULT_PATH)
+
+if (NOT HDF5_LIB OR NOT HDF5_CPP_LIB)
+    message(FATAL_ERROR "HDF5 libraries not found in ${HDF5_LIBRARYDIR}")
+endif()
+
 # Find OpenMP library
 find_package(OpenMP REQUIRED)
 
@@ -64,7 +74,7 @@ set(HEADERS
 )
 
 # Add directories
-include_directories(${PROJECT_SOURCE_DIR}/include ${BOOST_INCLUDEDIR} ${OR_TOOLS_INCLUDEDIR} ${CNPY_INCLUDEDIR})
+include_directories(${PROJECT_SOURCE_DIR}/include ${BOOST_INCLUDEDIR} ${OR_TOOLS_INCLUDEDIR} ${CNPY_INCLUDEDIR} ${HDF5_INCLUDEDIR})
 
 # Create the executable
 add_executable(graph-matching ${SOURCES} ${HEADERS})
@@ -72,8 +82,12 @@ add_executable(graph-matching ${SOURCES} ${HEADERS})
 target_link_libraries(graph-matching 
 	PRIVATE
 	${BOOST_LIB}
+	${BOOST_REGEX_LIB}
+    ${BOOST_GRAPH_LIB}
 	${OR_TOOLS_LIB}
 	${CNPY_LIB}
+	${HDF5_LIB}
+	${HDF5_CPP_LIB}
 )
 
 # Create an object library for each source file
@@ -86,7 +100,7 @@ target_include_directories(graph_loader PUBLIC ${BOOST_INCLUDEDIR})
 target_link_libraries(graph_loader PUBLIC ${BOOST_LIB})
 
 add_library(linear_assignment STATIC ${PROJECT_SOURCE_DIR}/src/linear_assignment/NodeAssignment.cpp ${PROJECT_SOURCE_DIR}/include/linear_assignment/NodeAssignment.h)
-target_include_directories(linear_assignment PUBLIC ${OR_TOOLS_INCLUDEDIR})
+target_include_directories(linear_assignment PUBLIC ${OR_TOOLS_INCLUDEDIR}, ${EIGEN_INCLUDEDIR})
 target_link_libraries(linear_assignment PUBLIC ${BOOST_LIB} ${OR_TOOLS_LIB})
 
 if(OpenMP_CXX_FOUND)

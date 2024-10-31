@@ -35,6 +35,8 @@ class GraphLoader {
 
         std::vector<int> get_adj_nodes(int u, Graph &g);
 
+        int get_degree(int u, Graph &g);
+
         int has_edge(int u, int v, Graph &g);
 
 };

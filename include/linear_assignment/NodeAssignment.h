@@ -16,23 +16,22 @@ namespace operations_research {
     class NodeAssignment {
 
         private:
-
-            std::vector<std::vector<float>> source;
-            std::vector<std::vector<float>> target;
+            
+            std::vector<std::vector<float>>& source;
+            std::vector<std::vector<float>>& target;
+            std::vector<std::vector<float>> cost_matrix;
 
         public:
 
-            NodeAssignment(std::vector<std::vector<float>> source_embedding, std::vector<std::vector<float>> target_embedding);
+            NodeAssignment(std::vector<std::vector<float>>& source_embedding, std::vector<std::vector<float>>& target_embedding);
 
             float euclidean_distance(const std::vector<float>& a, const std::vector<float>& b);
 
-            std::vector<std::vector<float>> calc_cost_matrix();
+            void calc_cost_matrix();
 
-            void injective_assignment(std::vector<int>& node_assignment, std::vector<std::vector<float>> cost_matrix, int max_dim);
+            void linear_assignment(std::vector<int>& node_assignment);
 
-            void bijective_assignment(std::vector<int>& node_assignment, std::vector<std::vector<float>> cost_matrix);
-
-            std::vector<int> calc_node_assignment();
+            void calc_node_assignment(std::vector<int>& node_assignment);
 
     };
 

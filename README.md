@@ -20,5 +20,5 @@ make
 
 #### Run
 ```bash
-./graph-matching
+./graph-matching <graph_folder> <node_embeddings_file> <output_path>
 ```

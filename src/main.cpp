@@ -1,6 +1,7 @@
 // This is the main script that handles everything
 #include <string>
 #include <regex>
+#include <array>
 #include <vector>
 #include <iostream>
 #include <chrono>
@@ -8,12 +9,17 @@
 #include <map>
 #include <omp.h>
 #include "cnpy.h"
+#include "H5Cpp.h"
 #include "edit_cost/EditCost.h"
 #include "graph_loader/GraphLoader.h"
 #include "linear_assignment/NodeAssignment.h"
 
-typedef std::map<std::string, Graph> GraphMap;
-typedef std::map<std::string, std::vector<std::vector<float>>> EmbeddingMap;
+
+typedef std::unordered_map<int, Graph> GraphMap;
+typedef std::unordered_map<int, int> NumNodeMap;
+typedef std::unordered_map<int, std::vector<int>> NodeMap;
+typedef std::unordered_map<int, std::vector<std::vector<float>>> EmbeddingMap;
+typedef std::unordered_map<int, std::vector<std::string>> AttributeMap;
 
 
 bool custom_sorting(const std::filesystem::path& a, const std::filesystem::path& b) {
@@ -60,30 +66,58 @@ void retrieve_embeddings(const std::filesystem::path& embeddings_folder, std::ve
     std::sort(embeddings.begin(), embeddings.end(), custom_sorting_emb);
 }
 
-void load_graphs_from_directory(const std::vector<std::filesystem::path>& directory, GraphMap& graph_map) {
+void load_graphs_from_directory(const std::vector<std::filesystem::path>& directory, GraphMap& graphs) {
     GraphLoader G;
+    int i = 0;
     for (const auto& entry : directory) {
         Graph graph;
         G.read_graph(entry, graph);
-        graph_map[entry] = graph;
+        graphs[i] = graph;
+        // graphs.push_back(graph);
+        i++;
     }
 }
 
-void load_embeddings_from_directory(const std::vector<std::filesystem::path>& directory, EmbeddingMap& embedding_map) {
-    for (const auto& entry : directory) {
-        cnpy::NpyArray arr = cnpy::npy_load(entry);
-        int rows1 = arr.shape[0];
-        int cols1 = arr.shape[1];
-        float* s_embedding = arr.data<float>();
-        std::vector<std::vector<float>> embedding(rows1, std::vector<float>(cols1));
-        #pragma omp parallel for collapse(2) num_threads(8)
-        for (int i = 0; i < rows1; ++i) {
-            for (int j = 0; j < cols1; ++j) {
-                embedding[i][j] = s_embedding[i * cols1 + j];
+void load_node_embeddings(const std::string& node_embeddings_path, EmbeddingMap& node_embeddings, int& num_graphs) {
+    H5::H5File file(node_embeddings_path, H5F_ACC_RDONLY);
+
+    for (int i = 0; i < num_graphs; ++i) {
+        
+        std::string dataset_name = "embedding_" + std::to_string(i);
+        
+        // Try opening the dataset, if it fails, stop the loop (no more arrays)
+        H5::DataSet dataset = file.openDataSet(dataset_name);
+
+        // // Get the dataspace and dimensions of the dataset and allocate space for reading
+        H5::DataSpace dataspace = dataset.getSpace();
+        int rank = dataspace.getSimpleExtentNdims();
+        hsize_t dims[2];
+        dataspace.getSimpleExtentDims(dims, NULL);
+        H5::DataSpace memspace(rank, dims);
+
+        // // Read the data into a C++ vector
+        // float data[dims[0]][dims[1]]; // buffer for dataset to be read
+        std::vector<float> data(dims[0] * dims[1]);
+        
+        dataset.read(data.data(), H5::PredType::NATIVE_FLOAT, memspace, dataspace);
+
+        std::vector<std::vector<float>> reshaped_data(dims[0], std::vector<float>(dims[1]));
+        for (hsize_t j = 0; j < dims[0]; ++j) {
+            for (hsize_t k = 0; k < dims[1]; ++k) {
+                reshaped_data[j][k] = data[j * dims[1] + k];
             }
         }
-        embedding_map[entry] = embedding;
+
+        // // // Add the loaded array to the list of arrays
+        // // // node_embeddings.push_back(data);
+        node_embeddings[i] = reshaped_data;
+
+        dataset.close();
+
     }
+
+    file.close();
+
 }
 
 void save_matrix_distances(const std::string path, std::vector<std::vector<int>>& matrix_distances) {
@@ -114,129 +148,143 @@ std::vector<int> load_indices(std::string const& path_idx) {
     return vec;
 }
 
-void calc_matrix_distances(std::vector<std::vector<int>>& matrix_distances, 
-                           const std::vector<int>& train_idx, 
-                           const std::vector<int>& test_idx, 
-                           const std::vector<std::filesystem::path>& graphs, 
-                           const std::vector<std::filesystem::path>& embeddings,
-                           GraphMap& graph_map,
-                           EmbeddingMap& embedding_map) {
+void get_node_info(GraphMap& graphs, NodeMap& nodes, NumNodeMap& num_nodes, AttributeMap& node_attrs, int& num_graphs) {
+    GraphLoader G;
+    for (int i = 0; i < num_graphs; i++) {
+        Graph& g = graphs[i];
+        nodes[i] = G.get_nodes(g);
+        num_nodes[i] = G.get_num_nodes(g);
+        node_attrs[i] = G.get_node_attrs(g);
+    }
+}
+
+void calc_matrix_distances(std::vector<std::vector<int>>& matrix_distances,
+                           int& num_graphs,
+                           GraphMap& graphs,
+                           EmbeddingMap& node_embeddings,
+                           NodeMap& nodes,
+                           NumNodeMap& num_nodes,
+                           AttributeMap& node_attrs) {
+
     
     GraphLoader G;
-    GraphLoader G1;
-    GraphLoader G2;
+    std::vector<int> node_assignment;
+    std::vector<int> unassigned_nodes;
+    std::vector<int> nodes_g1, nodes_g2;
+    std::vector<std::string> attrs_g1, attrs_g2;
+    int num_nodes_g1, num_nodes_g2;
+    int cost = 0;
 
+    // Reserve sufficient capacity to avoid reallocations in each loop
+    int max_num_nodes = std::max_element(num_nodes.begin(), num_nodes.end(),
+        [](const auto& a, const auto& b) {
+            return a.second < b.second;
+        })->second;
+    
+    node_assignment.reserve(max_num_nodes);
+    unassigned_nodes.reserve(max_num_nodes);
+
+    // Start the computations
     auto start = std::chrono::high_resolution_clock::now();
 
-    #pragma omp parallel for collapse(2) num_threads(12)
-    for (int i = 0; i < test_idx.size(); i++) {
+    // #pragma omp parallel for num_threads(12) private(cost, node_assignment, unassigned_nodes) collapse(1)
+    for (int i = 0; i < num_graphs; i++) {
 
-        for (int j = 0; j < train_idx.size(); j++) {
+        Graph& g1 = graphs[i];
+        num_nodes_g1 = num_nodes[i];
+        attrs_g1 = node_attrs[i];
 
-            Graph& g1 = graph_map[graphs[test_idx[i]]];
-            Graph& g2 = graph_map[graphs[train_idx[j]]];
+        for (int j = i + 1; j < num_graphs; j++) {
 
-            if (G1.get_num_nodes(g1) <= G2.get_num_nodes(g2)) {
+            Graph& g2 = graphs[j];
+            num_nodes_g2 = num_nodes[j];
+            attrs_g2 = node_attrs[j];
 
-                std::vector<std::vector<float>>& source_embedding = embedding_map[embeddings[test_idx[i]]];
-                std::vector<std::vector<float>>& target_embedding = embedding_map[embeddings[train_idx[j]]];
+            if (num_nodes_g1 <= num_nodes_g2) {
+                // heuristic -> the smaller graph is always the source graph
+                
+                cost = 0;
+                node_assignment.resize(num_nodes_g1);
+                unassigned_nodes.resize(num_nodes_g2 - num_nodes_g1);
+                
+                operations_research::NodeAssignment assignment(node_embeddings[i], node_embeddings[j]);
 
-                Graph source_graph;
-                source_graph = g1;
-                Graph target_graph;
-                target_graph = g2;
+                assignment.calc_node_assignment(node_assignment);
 
-                operations_research::NodeAssignment assignment(source_embedding, target_embedding);
+                EditCost edit_cost(node_assignment, g1, g2);
 
-                std::vector<int> node_assignment = assignment.calc_node_assignment();
+                edit_cost.get_unassigned_nodes(num_nodes_g2, unassigned_nodes);
+                
+                edit_cost.calc_cost_node_edit(cost, num_nodes_g1, unassigned_nodes, attrs_g1, attrs_g2);
 
-                EditCost edit_cost(node_assignment, source_graph, target_graph);
-
-                int cost = 0;
-
-                std::vector<int> nodes = G.get_nodes(target_graph);
-                std::vector<int> unassigned_nodes(G2.get_num_nodes(g2) - G1.get_num_nodes(g1));
-                edit_cost.get_unassigned_nodes(nodes, unassigned_nodes);
-
-                edit_cost.calc_cost_node_edit(cost, unassigned_nodes);
-
-                edit_cost.calc_cost_edge_edit(cost, unassigned_nodes);
+                edit_cost.calc_cost_edge_edit(cost, num_nodes_g1, unassigned_nodes);
 
                 matrix_distances[i][j] = cost;
                 
             } else {
+                
+                cost = 0;
+                node_assignment.resize(num_nodes_g2);
+                unassigned_nodes.resize(num_nodes_g1 - num_nodes_g2);
+                
+                operations_research::NodeAssignment assignment(node_embeddings[j], node_embeddings[i]);
 
-                std::vector<std::vector<float>>& source_embedding = embedding_map[embeddings[train_idx[j]]];
-                std::vector<std::vector<float>>& target_embedding = embedding_map[embeddings[test_idx[i]]];
+                assignment.calc_node_assignment(node_assignment);
 
-                Graph source_graph;
-                source_graph = g2;
-                Graph target_graph;
-                target_graph = g1;
+                EditCost edit_cost(node_assignment, g2, g1);
+                
+                edit_cost.get_unassigned_nodes(num_nodes_g1, unassigned_nodes);
 
-                operations_research::NodeAssignment assignment(source_embedding, target_embedding);
+                edit_cost.calc_cost_node_edit(cost, num_nodes_g2, unassigned_nodes, attrs_g2, attrs_g1);
 
-                std::vector<int> node_assignment = assignment.calc_node_assignment();
-
-                EditCost edit_cost(node_assignment, source_graph, target_graph);
-
-                int cost = 0;
-
-                std::vector<int> nodes = G.get_nodes(target_graph);
-                std::vector<int> unassigned_nodes(G1.get_num_nodes(g1) - G2.get_num_nodes(g2));
-                edit_cost.get_unassigned_nodes(nodes, unassigned_nodes);
-
-                edit_cost.calc_cost_node_edit(cost, unassigned_nodes);
-
-                edit_cost.calc_cost_edge_edit(cost, unassigned_nodes);
+                edit_cost.calc_cost_edge_edit(cost, num_nodes_g2, unassigned_nodes);
 
                 matrix_distances[i][j] = cost;
 
             }
 
-
         }
-
 
     }
 
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
     std::cout << "Time taken: " << duration.count() << " microseconds" << std::endl;
-
+    
 }
 
-int main() {
-    // TODO: add command line arguments
-    std::vector<std::filesystem::path> graphs;
-    std::filesystem::path graphs_folder = "/home/dobleraemon/Documents/PhD/graphs/MUTAG/";
-    retrieve_graphs(graphs_folder, graphs);
-
-    std::vector<std::filesystem::path> embeddings;
-    std::filesystem::path embeddings_folder = "/home/dobleraemon/Documents/PhD/gnn-ged/res/MUTAG/GINv2/raw/embeddings";
-    retrieve_embeddings(embeddings_folder, embeddings);
-
-    GraphMap graph_map;
-    load_graphs_from_directory(graphs, graph_map);
-
-    EmbeddingMap embedding_map;
-    load_embeddings_from_directory(embeddings, embedding_map);
-
-    // MUTAG
-    std::string path_train_idx = "/home/dobleraemon/Documents/PhD/gnn-ged/res/MUTAG/train_indices.npy";
-    std::string path_test_idx = "/home/dobleraemon/Documents/PhD/gnn-ged/res/MUTAG/test_indices.npy";
-
-    std::vector<int> train_idx = load_indices(path_train_idx);
-    std::vector<int> test_idx = load_indices(path_test_idx);
+int main(int argc, char* argv[]) {
     
-    // Initialize matrix distances
-    std::vector<std::vector<int>> matrix_distances(test_idx.size(), std::vector<int>(train_idx.size(), 0));
+    // Get command line arguments
+    std::filesystem::path graphs_folder = argv[1];
+    std::string node_embeddings_path = argv[2];
+    std::string output_path = argv[3];
+
+    // Preprocess
+    std::vector<std::filesystem::path> graphs_files;
+    retrieve_graphs(graphs_folder, graphs_files);
+
+    int num_graphs = graphs_files.size();
+
+    GraphMap graphs;
+    load_graphs_from_directory(graphs_files, graphs);
+
+    EmbeddingMap node_embeddings;
+    load_node_embeddings(node_embeddings_path, node_embeddings, num_graphs);
+
+    NodeMap nodes;
+    NumNodeMap num_nodes;
+    AttributeMap node_attrs;
+    get_node_info(graphs, nodes, num_nodes, node_attrs, num_graphs);
+
+    // Initialize the matrix of distances
+    std::vector<std::vector<int>> matrix_distances(num_graphs, std::vector<int>(num_graphs, 0));
 
     // Compute GED
-    calc_matrix_distances(matrix_distances, train_idx, test_idx, graphs, embeddings, graph_map, embedding_map);
+    calc_matrix_distances(matrix_distances, num_graphs, graphs, node_embeddings, nodes, num_nodes, node_attrs);
 
     // Save the results
-    // save_matrix_distances("/home/dobleraemon/Documents/PhD/gnn-cppged/res/MUTAG/distances.npy", matrix_distances);
+    save_matrix_distances(output_path, matrix_distances);
 
     return 0;
 }
