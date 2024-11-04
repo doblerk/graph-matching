@@ -58,6 +58,13 @@ endif()
 # Find OpenMP library
 find_package(OpenMP REQUIRED)
 
+# Find Google-Test library
+add_subdirectory("third_party/googletest")
+include_directories("third_party/googletest/googletest/include")
+add_executable(node_assignment_test "tests/node_assignment_test.cpp")
+target_include_directories(node_assignment_test PRIVATE ${PROJECT_SOURCE_DIR}/include)
+target_link_libraries(node_assignment_test gtest gtest_main pthread linear_assignment)
+
 # Add the source files
 set(SOURCES
 	src/main.cpp

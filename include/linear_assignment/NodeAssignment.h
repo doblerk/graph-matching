@@ -25,6 +25,12 @@ namespace operations_research {
 
             NodeAssignment(std::vector<std::vector<float>>& source_embedding, std::vector<std::vector<float>>& target_embedding);
 
+            const std::vector<std::vector<float>>& getSource() const { return source; }
+            
+            const std::vector<std::vector<float>>& getTarget() const { return target; }
+            
+            const std::vector<std::vector<float>>& getCostMatrix() const { return cost_matrix; }
+
             float euclidean_distance(const std::vector<float>& a, const std::vector<float>& b);
 
             void calc_cost_matrix();
