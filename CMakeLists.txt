@@ -7,7 +7,7 @@ project(graph-matching VERSION 1.0
 
 # Set the C++ standard
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CSS_STANDARD_REQUIRED True)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Find Boost libraries
 set(BOOST_ROOT "${PROJECT_SOURCE_DIR}/third_party/boost")
@@ -34,11 +34,10 @@ endif()
 
 # Find cnpy libraries
 set(CNPY_ROOT "${PROJECT_SOURCE_DIR}/third_party/cnpy")
-set(CNPY_INCLUDEDIR ${CNPY_ROOT})
-set(CNPY_LIBRARYDIR ${CNPY_ROOT})
 
-add_library(cnpy STATIC ${CNPY_ROOT}/cnpy.cpp)
-target_include_directories(cnpy PUBLIC ${CNPY_INCLUDEDIR})
+add_subdirectory(${CNPY_ROOT})
+# add_library(cnpy STATIC ${CNPY_ROOT}/cnpy.cpp)
+# target_include_directories(cnpy PUBLIC ${CNPY_INCLUDEDIR})
 
 # find_library(CNPY_LIB cnpy PATHS ${CNPY_LIBRARYDIR} NO_DEFAULT_PATH)
 
@@ -84,7 +83,7 @@ set(HEADERS
 )
 
 # Add directories
-include_directories(${PROJECT_SOURCE_DIR}/include ${BOOST_INCLUDEDIR} ${OR_TOOLS_INCLUDEDIR} ${CNPY_INCLUDEDIR} ${HDF5_INCLUDEDIR})
+include_directories(${PROJECT_SOURCE_DIR}/include ${BOOST_INCLUDEDIR} ${OR_TOOLS_INCLUDEDIR} ${CNPY_ROOT} ${HDF5_INCLUDEDIR})
 
 # Create the executable
 add_executable(graph-matching ${SOURCES} ${HEADERS})
