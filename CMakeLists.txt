@@ -34,14 +34,17 @@ endif()
 
 # Find cnpy libraries
 set(CNPY_ROOT "${PROJECT_SOURCE_DIR}/third_party/cnpy")
-set(CNPY_INCLUDEDIR "${PROJECT_SOURCE_DIR}/third_party/cnpy")
-set(CNPY_LIBRARYDIR "${PROJECT_SOURCE_DIR}/third_party/cnpy/libs")
+set(CNPY_INCLUDEDIR ${CNPY_ROOT})
+set(CNPY_LIBRARYDIR ${CNPY_ROOT})
 
-find_library(CNPY_LIB cnpy PATHS ${CNPY_LIBRARYDIR} NO_DEFAULT_PATH)
+add_library(cnpy STATIC ${CNPY_ROOT}/cnpy.cpp)
+target_include_directories(cnpy PUBLIC ${CNPY_INCLUDEDIR})
 
-if (NOT CNPY_LIB)
-    message(FATAL_ERROR "CNPY library not found in ${CNPY_LIBRARYDIR}")
-endif()
+# find_library(CNPY_LIB cnpy PATHS ${CNPY_LIBRARYDIR} NO_DEFAULT_PATH)
+
+# if (NOT CNPY_LIB)
+#     message(FATAL_ERROR "CNPY library not found in ${CNPY_LIBRARYDIR}")
+# endif()
 
 # Find hdf5 libraries
 set(HDF5_ROOT "${PROJECT_SOURCE_DIR}/third_party/hdf5")
@@ -92,7 +95,7 @@ target_link_libraries(graph-matching
 	${BOOST_REGEX_LIB}
     ${BOOST_GRAPH_LIB}
 	${OR_TOOLS_LIB}
-	${CNPY_LIB}
+	cnpy
 	${HDF5_LIB}
 	${HDF5_CPP_LIB}
 )

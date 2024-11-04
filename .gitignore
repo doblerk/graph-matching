@@ -4,5 +4,4 @@ res/
 
 # Miscellaneous
 .vscode/
-third_party/cnpy2
 third_party/boost/bin.v2
