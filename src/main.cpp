@@ -158,6 +158,32 @@ void get_node_info(GraphMap& graphs, NodeMap& nodes, NumNodeMap& num_nodes, Attr
     }
 }
 
+void calc_cost(Graph& source, Graph& target, 
+               int& num_nodes_source, int& num_nodes_target, 
+               std::vector<std::string>& attrs_source, std::vector<std::string>& attrs_target, 
+               int& i, int& j, 
+               std::vector<std::vector<int>>& matrix_distances, 
+               EmbeddingMap& node_embeddings,
+               std::vector<int>& node_assignment,
+               std::vector<int>& unassigned_nodes) {
+    int cost = 0;
+    node_assignment.resize(num_nodes_source);
+    unassigned_nodes.resize(num_nodes_target - num_nodes_source);
+
+    operations_research::NodeAssignment assignment(node_embeddings[i], node_embeddings[j]);
+    assignment.calc_cost_matrix();
+    assignment.linear_assignment(node_assignment);
+    // assignment.greedy_assignment(node_assignment);
+
+    EditCost edit_cost(node_assignment, source, target);
+    edit_cost.get_unassigned_nodes(num_nodes_target, unassigned_nodes);
+
+    edit_cost.calc_cost_node_edit(cost, num_nodes_source, unassigned_nodes, attrs_source, attrs_target);
+    edit_cost.calc_cost_edge_edit(cost, num_nodes_source, unassigned_nodes);
+
+    matrix_distances[i][j] = cost;
+}
+
 void calc_matrix_distances(std::vector<std::vector<int>>& matrix_distances,
                            int& num_graphs,
                            GraphMap& graphs,
@@ -166,7 +192,6 @@ void calc_matrix_distances(std::vector<std::vector<int>>& matrix_distances,
                            NumNodeMap& num_nodes,
                            AttributeMap& node_attrs) {
 
-    
     GraphLoader G;
     std::vector<int> node_assignment;
     std::vector<int> unassigned_nodes;
@@ -202,44 +227,11 @@ void calc_matrix_distances(std::vector<std::vector<int>>& matrix_distances,
 
             if (num_nodes_g1 <= num_nodes_g2) {
                 // heuristic -> the smaller graph is always the source graph
-                
-                cost = 0;
-                node_assignment.resize(num_nodes_g1);
-                unassigned_nodes.resize(num_nodes_g2 - num_nodes_g1);
-                
-                operations_research::NodeAssignment assignment(node_embeddings[i], node_embeddings[j]);
-
-                assignment.calc_node_assignment(node_assignment);
-
-                EditCost edit_cost(node_assignment, g1, g2);
-
-                edit_cost.get_unassigned_nodes(num_nodes_g2, unassigned_nodes);
-                
-                edit_cost.calc_cost_node_edit(cost, num_nodes_g1, unassigned_nodes, attrs_g1, attrs_g2);
-
-                edit_cost.calc_cost_edge_edit(cost, num_nodes_g1, unassigned_nodes);
-
-                matrix_distances[i][j] = cost;
+                calc_cost(g1, g2, num_nodes_g1, num_nodes_g2, attrs_g1, attrs_g2, i, j, matrix_distances, node_embeddings, node_assignment, unassigned_nodes);
                 
             } else {
                 
-                cost = 0;
-                node_assignment.resize(num_nodes_g2);
-                unassigned_nodes.resize(num_nodes_g1 - num_nodes_g2);
-                
-                operations_research::NodeAssignment assignment(node_embeddings[j], node_embeddings[i]);
-
-                assignment.calc_node_assignment(node_assignment);
-
-                EditCost edit_cost(node_assignment, g2, g1);
-                
-                edit_cost.get_unassigned_nodes(num_nodes_g1, unassigned_nodes);
-
-                edit_cost.calc_cost_node_edit(cost, num_nodes_g2, unassigned_nodes, attrs_g2, attrs_g1);
-
-                edit_cost.calc_cost_edge_edit(cost, num_nodes_g2, unassigned_nodes);
-
-                matrix_distances[i][j] = cost;
+                calc_cost(g2, g1, num_nodes_g2, num_nodes_g1, attrs_g2, attrs_g1, j, i, matrix_distances, node_embeddings, node_assignment, unassigned_nodes);
 
             }
 

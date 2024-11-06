@@ -32,9 +32,11 @@ void EditCost::calc_cost_node_edit(int& cost,
     
     GraphLoader G;
 
+    int j;
+
     // Node substitution cost
     for (int i = 0; i < assignment_size; ++i) {
-        int j = node_assignment[i];
+        j = node_assignment[i];
         if (attrs_source[i] != attrs_target[j]) {
             // Add cost for node substitution (adjust this as needed)
             cost++;
@@ -54,10 +56,11 @@ void EditCost::calc_cost_edge_edit(int& cost, int& num_nodes, std::vector<int>& 
 
     // cost edge insertion, deletion, substitution
     for (int i = 0; i < num_nodes; i++) {
+        
+        int phi_i = node_assignment[i];
 
         for (int j = i + 1; j < num_nodes; j++) {
 
-            int phi_i = node_assignment[i];
             int phi_j = node_assignment[j];
 
             if (G.has_edge(i, j, graph_source)) {
