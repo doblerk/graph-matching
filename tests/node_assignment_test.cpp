@@ -53,18 +53,14 @@ TEST_F(NodeAssignmentTest, CalcCostMatrixTest) {
     }
 }
 
-// // Test Linear Assignment
-// TEST_F(NodeAssignmentTest, LinearAssignmentTest) {
-//     std::vector<std::vector<float>> cost_matrix = {
-//         {10.0, 15.0, 20.0},
-//         {10.0, 10.0, 25.0},
-//         {20.0, 30.0, 5.0}
-//     };
-//     std::vector<int> node_assignment_result(3);
-//     node_assignment.linear_assignment(node_assignment_result);
+// Test Linear Assignment
+TEST_F(NodeAssignmentTest, LinearAssignmentTest) {
 
-//     // Expected result: minimal cost assignment indices
-//     EXPECT_EQ(node_assignment_result[0], 0);  // First worker assigned to first task
-//     EXPECT_EQ(node_assignment_result[1], 1);  // Second worker assigned to second task
-//     EXPECT_EQ(node_assignment_result[2], 2);  // Third worker assigned to third task
-// }
+    std::vector<int> node_assignment_result(3);
+    node_assignment.linear_assignment(node_assignment_result);
+
+    // Expected result: minimal cost assignment indices
+    EXPECT_EQ(node_assignment_result[0], 0);  // First worker assigned to first task
+    EXPECT_EQ(node_assignment_result[1], 1);  // Second worker assigned to second task
+    EXPECT_EQ(node_assignment_result[2], 2);  // Third worker assigned to third task
+}

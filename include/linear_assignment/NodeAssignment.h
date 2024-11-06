@@ -3,6 +3,8 @@
 
 #include <cstdint>
 #include <numeric>
+#include <set>
+#include <map>
 #include <string>
 #include <vector>
 #include <chrono>
@@ -37,7 +39,9 @@ namespace operations_research {
 
             void linear_assignment(std::vector<int>& node_assignment);
 
-            void calc_node_assignment(std::vector<int>& node_assignment);
+            void greedy_assignment(std::vector<int>& node_assignment);
+
+            // void calc_node_assignment(std::vector<int>& node_assignment);
 
     };
 
