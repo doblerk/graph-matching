@@ -15,8 +15,8 @@ namespace operations_research {
 
     NodeAssignment::NodeAssignment(std::vector<std::vector<float>>& source_embedding, std::vector<std::vector<float>>& target_embedding)
         : source(source_embedding)
-        , target(target_embedding)
-        , cost_matrix(target_embedding.size(), std::vector<float>(target_embedding.size(), 1.0f)) {}
+        , target(target_embedding) {}
+        // , cost_matrix(target_embedding.size(), std::vector<float>(target_embedding.size(), 1.0f)) {}
 
     float NodeAssignment::euclidean_distance(const std::vector<float>& a, const std::vector<float>& b) {
         float sum = 0.0;
@@ -27,23 +27,25 @@ namespace operations_research {
         return sum;
     }
 
-    void NodeAssignment::calc_cost_matrix() {
+    void NodeAssignment::calc_cost_matrix(std::vector<float>& cost_matrix) {
 
         #pragma omp parallel for collapse(2) num_threads(8)
         for (int i = 0; i < source.size(); i++) {
             for (int j = 0; j < target.size(); j++) {
-                cost_matrix[i][j] = std::sqrt(euclidean_distance(source[i], target[j]));
+                // cost_matrix[i][j] = std::sqrt(euclidean_distance(source[i], target[j]));
+                cost_matrix[i * target.size() + j] = std::sqrt(euclidean_distance(source[i], target[j]));
+                
             }
         }
     }
 
-    void NodeAssignment::linear_assignment(std::vector<int>& node_assignment) {
+    void NodeAssignment::linear_assignment(std::vector<int>& node_assignment, std::vector<float>& cost_matrix) {
 
         SimpleLinearSumAssignment assignment;
 
-        for (int worker = 0; worker < cost_matrix.size(); worker++) {
-            for (int task = 0; task < cost_matrix[0].size(); task++) {
-                assignment.AddArcWithCost(worker, task, cost_matrix[worker][task]);
+        for (int worker = 0; worker < target.size(); worker++) {
+            for (int task = 0; task < target.size(); task++) {
+                assignment.AddArcWithCost(worker, task, cost_matrix[worker * target.size() + task]);
             }
         }
 
@@ -55,7 +57,7 @@ namespace operations_research {
 
     }
 
-    void NodeAssignment::greedy_assignment(std::vector<int>& node_assignment) {
+    void NodeAssignment::greedy_assignment(std::vector<int>& node_assignment, std::vector<float>& cost_matrix) {
         
         std::vector<std::set<std::pair<int, int>>> sorted_rows(source.size());
         std::vector<std::set<std::pair<int, int>>> sorted_cols(target.size());
@@ -66,9 +68,9 @@ namespace operations_research {
         for (int i = 0; i < source.size(); i++) {
 
             for (int j = 0; j < target.size(); j++) {
-
-                sorted_rows[i].insert(std::make_pair(cost_matrix[i][j], j));
-                sorted_cols[j].insert(std::make_pair(cost_matrix[i][j], i));
+                float cost = cost_matrix[i * target.size() + j];
+                sorted_rows[i].insert(std::make_pair(cost, j));
+                sorted_cols[j].insert(std::make_pair(cost, i));
 
             }
 
@@ -107,13 +109,13 @@ namespace operations_research {
 
             for (int i = 0; i < source.size(); ++i) {
                 if (rowNotDeleted[i]) {
-                    sorted_rows[i].erase({cost_matrix[i][min_col], min_col});
+                    sorted_rows[i].erase({cost_matrix[i * target.size() + min_col], min_col});
                 }
             }
 
             for (int j = 0; j < target.size(); ++j) {
                 if (colNotDeleted[j]) {
-                    sorted_cols[j].erase({cost_matrix[min_row][j], min_row});
+                    sorted_cols[j].erase({cost_matrix[min_row * target.size() + j], min_row});
                 }
             }
 
@@ -121,12 +123,44 @@ namespace operations_research {
 
     }
 
-    // void NodeAssignment::calc_node_assignment(std::vector<int>& node_assignment) {
+    void NodeAssignment::greedy_assignment_fast(std::vector<int>& node_assignment, std::vector<float>& cost_matrix) {
 
-    //     calc_cost_matrix();
+        std::vector<bool> rowNotDeleted(source.size(), true);
+        std::vector<bool> colNotDeleted(target.size(), true);
+        
+        float tmp_cost, min_cost;
+        int min_row, min_col;
 
-    //     linear_assignment(node_assignment);
+        for (int k = 0; k < source.size(); ++k) {
+            min_cost = std::numeric_limits<float>::max();
+            min_row = -1, min_col = -1;
 
-    // }
+            for (int i = 0; i < source.size(); ++i) {
+                if (rowNotDeleted[i]) {
+                    for (int j = 0; j < target.size(); ++j) {
+                        if (colNotDeleted[j]) {
+                            tmp_cost = cost_matrix[i * target.size() + j];
+                            if (tmp_cost < min_cost) {
+                                min_cost = tmp_cost;
+                                min_row = i;
+                                min_col = j;
+                            }
+                        }
+                    }
+                }
+            }
+
+            node_assignment[min_row] = min_col;
+
+            rowNotDeleted[min_row] = false;
+            colNotDeleted[min_col] = false;
+        }
+
+    }
+
+    void NodeAssignment::minimum_cost_flow(std::vector<int>& node_assignment, std::vector<float>& cost_matrix) {
+        // TODO
+    }
+
 
 }
