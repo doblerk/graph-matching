@@ -52,8 +52,6 @@ void EditCost::calc_cost_edge_edit(int& cost, int& num_nodes, std::vector<int>& 
 
     GraphLoader G;
 
-    // int num_nodes = G.get_num_nodes(graph_source); // redundant again
-
     // cost edge insertion, deletion, substitution
     for (int i = 0; i < num_nodes; i++) {
         

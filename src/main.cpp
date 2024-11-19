@@ -165,15 +165,18 @@ void calc_cost(Graph& source, Graph& target,
                std::vector<std::vector<int>>& matrix_distances, 
                EmbeddingMap& node_embeddings,
                std::vector<int>& node_assignment,
-               std::vector<int>& unassigned_nodes) {
+               std::vector<int>& unassigned_nodes,
+               std::vector<float>& cost_matrix) {
     int cost = 0;
+    cost_matrix.resize(num_nodes_target * num_nodes_target, 1.0);
     node_assignment.resize(num_nodes_source);
     unassigned_nodes.resize(num_nodes_target - num_nodes_source);
 
     operations_research::NodeAssignment assignment(node_embeddings[i], node_embeddings[j]);
-    assignment.calc_cost_matrix();
-    assignment.linear_assignment(node_assignment);
-    // assignment.greedy_assignment(node_assignment);
+    assignment.calc_cost_matrix(cost_matrix);
+    assignment.linear_assignment(node_assignment, cost_matrix);
+    // assignment.greedy_assignment(node_assignment, cost_matrix);
+    // assignment.greedy_assignment_fast(node_assignment, cost_matrix);
 
     EditCost edit_cost(node_assignment, source, target);
     edit_cost.get_unassigned_nodes(num_nodes_target, unassigned_nodes);
@@ -192,7 +195,7 @@ void calc_matrix_distances(std::vector<std::vector<int>>& matrix_distances,
                            NumNodeMap& num_nodes,
                            AttributeMap& node_attrs) {
 
-    GraphLoader G;
+    std::vector<float> cost_matrix;
     std::vector<int> node_assignment;
     std::vector<int> unassigned_nodes;
     std::vector<int> nodes_g1, nodes_g2;
@@ -206,6 +209,7 @@ void calc_matrix_distances(std::vector<std::vector<int>>& matrix_distances,
             return a.second < b.second;
         })->second;
     
+    cost_matrix.reserve(max_num_nodes * max_num_nodes);
     node_assignment.reserve(max_num_nodes);
     unassigned_nodes.reserve(max_num_nodes);
 
@@ -227,11 +231,11 @@ void calc_matrix_distances(std::vector<std::vector<int>>& matrix_distances,
 
             if (num_nodes_g1 <= num_nodes_g2) {
                 // heuristic -> the smaller graph is always the source graph
-                calc_cost(g1, g2, num_nodes_g1, num_nodes_g2, attrs_g1, attrs_g2, i, j, matrix_distances, node_embeddings, node_assignment, unassigned_nodes);
+                calc_cost(g1, g2, num_nodes_g1, num_nodes_g2, attrs_g1, attrs_g2, i, j, matrix_distances, node_embeddings, node_assignment, unassigned_nodes, cost_matrix);
                 
             } else {
                 
-                calc_cost(g2, g1, num_nodes_g2, num_nodes_g1, attrs_g2, attrs_g1, j, i, matrix_distances, node_embeddings, node_assignment, unassigned_nodes);
+                calc_cost(g2, g1, num_nodes_g2, num_nodes_g1, attrs_g2, attrs_g1, j, i, matrix_distances, node_embeddings, node_assignment, unassigned_nodes, cost_matrix);
 
             }
 
@@ -276,7 +280,7 @@ int main(int argc, char* argv[]) {
     calc_matrix_distances(matrix_distances, num_graphs, graphs, node_embeddings, nodes, num_nodes, node_attrs);
 
     // Save the results
-    save_matrix_distances(output_path, matrix_distances);
+    // save_matrix_distances(output_path, matrix_distances);
 
     return 0;
 }
